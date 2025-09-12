@@ -16,10 +16,7 @@ ll dy[] = {0, 0, 1, -1, 1, -1, 1, -1};
 template <typename T>
 using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-bool cmp(const pair<ll,ll>&a,const pair<ll,ll>&b)
-{
 
-}
 
 void domain_expension()
 {
@@ -28,32 +25,36 @@ void domain_expension()
     vector<ll>s(n);
     for(int i=0;i<n;i++) cin >> s[i];
 
-    map<ll,ll>m;
-    // Use a max-heap for mode
-    priority_queue<pair<ll,ll>> pq;
-    for(auto [u,f]:m) {
-        pq.push({f,u});
+    map<ll, ll> mp; 
+    map<ll, set<ll>> mp_val;
+    for (int i = 0; i < k; i++) {
+        ll val = s[i];
+        ll old_f = mp[val];
+        if (old_f > 0) mp_val[old_f].erase(val);
+        mp[val]++;
+        mp_val[mp[val]].insert(val);
     }
-    cout << pq.top().second << " ";
-    pair<ll,ll> it = *st.rbegin();
-    cout << it.second << " ";
-    for(int i=k;i<n;i++) {
-        // Add/update incoming element
-        m[s[i]]++;
-        pq.push({m[s[i]], s[i]});
-        if(m[s[i-k]] > 0) st.insert({m[s[i-k]], s[i-k]});
-        // Lazy deletion: pop outdated entries
-        while(!pq.empty() && m[pq.top().second] != pq.top().first) pq.pop();
-        cout << pq.top().second << " ";
+    cout << *mp_val.rbegin()->second.begin() << " ";
 
-        if(m.count(s[i])) st.erase({m[s[i]], s[i]});
-        m[s[i]]++;
-        st.insert({m[s[i]], s[i]});
+    for (int i = k; i < n; i++) {
+        ll out_val = s[i - k];
+        ll out_f = mp[out_val];
+        mp_val[out_f].erase(out_val);
+        if (mp_val[out_f].empty()) mp_val.erase(out_f);
+        mp[out_val]--;
+        if (mp[out_val] > 0) mp_val[mp[out_val]].insert(out_val);
+        else mp.erase(out_val);
+        
+        ll in_val = s[i];
+        ll in_f = mp[in_val];
+        if (in_f > 0) mp_val[in_f].erase(in_val);
+        mp[in_val]++;
+        mp_val[mp[in_val]].insert(in_val);
 
-        pair<ll,ll> it = *st.rbegin();
-        cout << it.second << " ";
+        cout << *mp_val.rbegin()->second.begin() << " ";
     }
     cout << endl;
+   
 }
 int main()
 {
